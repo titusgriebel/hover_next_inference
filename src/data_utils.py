@@ -779,7 +779,6 @@ class ImageDataset(NpyDataset):
         img_io = imageio.imread(self.path)
         uintimg = img_io.astype(np.uint8)
         img = cv2.cvtColor(uintimg, cv2.COLOR_RGB2BGR)        
-        print(img.shape)
         if img.shape[-1] == 4:
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
         elif img.shape[-1] == 3:

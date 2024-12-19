@@ -1,1 +1,12 @@
-python3 main.py --input "/mnt/lustre-grete/usr/u12649/scratch/data/test/cpm15/loaded_dataset/complete_dataset/eval_split/test_images/*" --output_root /mnt/lustre-grete/usr/u12649/scratch/models/hovernext/inference --tile_size 512 --cp pannuke_convnextv2_tiny_2
+#! /bin/bash
+#SBATCH -p grete:shared
+#SBATCH -G A100:1
+#SBATCH -c 16
+#SBATCH --mem 64G
+#SBATCH -t 2-00:00:00
+#SBATCH --job-name=hovernext_inference
+
+
+source ~/.bashrc
+mamba activate hovernext
+python3 hovernext_inference.py

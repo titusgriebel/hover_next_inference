@@ -85,6 +85,6 @@ def run_inference(input_dir, output_dir):
 
 
 run_inference(
-    input_dir="/mnt/lustre-grete/usr/u12649/scratch/data/test",
+    input_dir="/mnt/lustre-grete/usr/u12649/scratch/data/final_test",
     output_dir="/mnt/lustre-grete/usr/u12649/scratch/models/hovernext/inference",
 )

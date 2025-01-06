@@ -8,6 +8,7 @@ import zipfile
 import shutil
 import subprocess
 
+
 CHECKPOINTS = [
     "lizard_convnextv2_large",
     "lizard_convnextv2_base",
@@ -16,19 +17,23 @@ CHECKPOINTS = [
     "pannuke_convnextv2_tiny_2",
     "pannuke_convnextv2_tiny_3",
 ]
+
 DATASETS = [
+    # "consep",
     "cpm15",
-    "cpm17",
-    "cryonuseg",
-    "janowczyk",
-    "lizard",
-    "lynsec",
-    "monusac",
-    "monuseg",
-    "nuinsseg",
-    "pannuke",
-    "puma",
-    "tnbc",
+    # "cpm17",
+    # "cryonuseg",
+    # "lizard",
+    # "lynsec_he",
+    # "lynsec_ihc",
+    # "monusac",
+    # "monuseg",
+    # "nuclick",
+    # "nuinsseg",
+    # "pannuke",
+    # "puma",
+    # "srsanet",
+    # "tnbc",
 ]
 
 
@@ -54,7 +59,7 @@ def run_inference(input_dir, output_dir):
     for dataset in DATASETS:
         for model in CHECKPOINTS:
             output_path = os.path.join(output_dir, dataset, model)
-            input_path = os.path.join(input_dir, dataset, "loaded_testset/images/*")
+            input_path = os.path.join(input_dir, dataset, "loaded_testset", "eval_split", "test_images", "*")
             if os.path.exists(output_path):
                 if len(os.listdir(output_path)) > 0:
                     continue
@@ -81,10 +86,10 @@ def run_inference(input_dir, output_dir):
                 f"Inference on {dataset} dataset with the HoVerNeXt model {model} successfully completed"
             )
             postprocess_inference(output_path)
-            print("Predictions succesfully converted to .tiff")
+            print("Predictions successfully converted to .tiff")
 
 
 run_inference(
-    input_dir="/mnt/lustre-grete/usr/u12649/scratch/data/final_test",
-    output_dir="/mnt/lustre-grete/usr/u12649/scratch/models/hovernext/inference",
+    input_dir="/mnt/lustre-grete/usr/u12649/data/final_test",
+    output_dir="/mnt/lustre-grete/usr/u12649/models/hovernext/inference",
 )

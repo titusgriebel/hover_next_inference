@@ -47,6 +47,9 @@ def postprocess_inference(path):
             zip_file.extractall(array_path)
         raw_pred = zarr.open(os.path.join(image_dir, "cls"), mode="r")
         pred = np.squeeze(raw_pred)
+        if pred.size == 0:
+            print(image_dir)
+            continue
         semantic_mask = np.argmax(pred, axis=0)
         imageio.imwrite(
             os.path.join(path, f"{os.path.basename(image_dir)}.tiff"),
@@ -75,7 +78,6 @@ def run_inference(input_dir, output_dir):
                 "--tile_size",
                 "512",
                 "--keep_raw",
-                "--save_polygon"
             ]
             command = [
                 "python3",
@@ -84,11 +86,11 @@ def run_inference(input_dir, output_dir):
             print(
                 f"Running inference with HoVerNeXt {model} model on {dataset} dataset..."
             )
-            subprocess.run(command)
+            # subprocess.run(command)
             print(
                 f"Inference on {dataset} dataset with the HoVerNeXt model {model} successfully completed"
             )
-            # postprocess_inference(output_path)
+            postprocess_inference(output_path)
             print("Predictions successfully converted to .tiff")
 
 

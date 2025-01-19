@@ -8,12 +8,12 @@ import zipfile
 import shutil
 import subprocess
 
-
+import json
 CHECKPOINTS = [
     # "lizard_convnextv2_large",
     # "lizard_convnextv2_base",
     # "lizard_convnextv2_tiny",
-    "pannuke_convnextv2_tiny_1",
+    # "pannuke_convnextv2_tiny_1",
     "pannuke_convnextv2_tiny_2",
     "pannuke_convnextv2_tiny_3",
 ]
@@ -41,21 +41,33 @@ def postprocess_inference(path):
     for image_dir in natsorted(glob(os.path.join(path, "*"))):
         if not os.path.isdir(image_dir):
             continue
-        array_path = os.path.join(image_dir, "cls")
+       
+        #instance map
+        array_path = os.path.join(image_dir, "pinst_pp")
         os.makedirs(array_path, exist_ok=True)
-        with zipfile.ZipFile(os.path.join(image_dir, f"{os.path.basename(image_dir)}_raw_512_cls.zip"), "r") as zip_file:
+        with zipfile.ZipFile(os.path.join(image_dir, "pinst_pp.zip"), "r") as zip_file:
             zip_file.extractall(array_path)
-        raw_pred = zarr.open(os.path.join(image_dir, "cls"), mode="r")
-        pred = np.squeeze(raw_pred)
-        if pred.size == 0:
-            print(image_dir)
-            continue
-        semantic_mask = np.argmax(pred, axis=0)
+        raw_pred = zarr.open(os.path.join(image_dir, "pinst_pp"), mode="r")
+        instance_map = np.squeeze(raw_pred)
         imageio.imwrite(
-            os.path.join(path, f"{os.path.basename(image_dir)}.tiff"),
-            semantic_mask,
+            os.path.join(path, f"{os.path.basename(image_dir)}_inst.tiff"),
+            instance_map,
             format="TIFF",
         )
+        #class info
+        json_path = os.path.join(image_dir, "class_inst.json")
+        with open(json_path, 'r') as file:
+            class_info = json.load(file)
+        id_to_class = {int(k): v[0] for k, v in class_info.items()}
+        semantic_map = np.zeros_like(instance_map)
+        for instance_id, class_label in id_to_class.items():
+            semantic_map[instance_map == instance_id] = class_label
+        imageio.imwrite(
+            os.path.join(path, f"{os.path.basename(image_dir)}.tiff"),
+            semantic_map,
+            format="TIFF",
+        )
+
         shutil.rmtree(image_dir)
 
 
@@ -77,7 +89,6 @@ def run_inference(input_dir, output_dir):
                 f"{output_path}",
                 "--tile_size",
                 "512",
-                "--keep_raw",
             ]
             command = [
                 "python3",
@@ -86,7 +97,7 @@ def run_inference(input_dir, output_dir):
             print(
                 f"Running inference with HoVerNeXt {model} model on {dataset} dataset..."
             )
-            # subprocess.run(command)
+            subprocess.run(command)
             print(
                 f"Inference on {dataset} dataset with the HoVerNeXt model {model} successfully completed"
             )
@@ -98,3 +109,13 @@ run_inference(
     input_dir="/mnt/lustre-grete/usr/u12649/data/final_test",
     output_dir="/mnt/lustre-grete/usr/u12649/models/hovernext_types",
 )
+# array_path = os.path.join(image_dir, "cls")
+        # os.makedirs(array_path, exist_ok=True)
+        # with zipfile.ZipFile(os.path.join(image_dir, f"{os.path.basename(image_dir)}_raw_512_cls.zip"), "r") as zip_file:
+        #     zip_file.extractall(array_path)
+        # raw_pred = zarr.open(os.path.join(image_dir, "cls"), mode="r")
+        # pred = np.squeeze(raw_pred)
+        # if pred.size == 0:
+        #     print(image_dir)
+        #     continue
+        # semantic_mask = np.argmax(pred, axis=0)

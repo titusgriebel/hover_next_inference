@@ -13,8 +13,8 @@ CHECKPOINTS = [
     # "lizard_convnextv2_large",
     # "lizard_convnextv2_base",
     # "lizard_convnextv2_tiny",
-    # "pannuke_convnextv2_tiny_1",
-    "pannuke_convnextv2_tiny_2",
+    "pannuke_convnextv2_tiny_1",
+    # "pannuke_convnextv2_tiny_2",
     "pannuke_convnextv2_tiny_3",
 ]
 
@@ -74,6 +74,7 @@ def postprocess_inference(path):
         )
 
         shutil.rmtree(image_dir)
+        shutil.rmtree(array_path)
 
 
 def run_inference(input_dir, output_dir):

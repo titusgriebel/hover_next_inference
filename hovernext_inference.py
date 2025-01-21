@@ -38,10 +38,14 @@ DATASETS = [
 
 
 def postprocess_inference(path):
+    inst_path = os.path.join(path, "instance")
+    os.makedirs(inst_path, exist_ok=True)
+    sem_path = os.path.join(path, "semantic")
+    os.makedirs(sem_path, exist_ok=True)
     for image_dir in natsorted(glob(os.path.join(path, "*"))):
         if not os.path.isdir(image_dir):
             continue
-       
+        
         #instance map
         array_path = os.path.join(image_dir, "pinst_pp")
         os.makedirs(array_path, exist_ok=True)
@@ -49,8 +53,9 @@ def postprocess_inference(path):
             zip_file.extractall(array_path)
         raw_pred = zarr.open(os.path.join(image_dir, "pinst_pp"), mode="r")
         instance_map = np.squeeze(raw_pred)
+        
         imageio.imwrite(
-            os.path.join(path, f"{os.path.basename(image_dir)}_inst.tiff"),
+            os.path.join(inst_path, f"{os.path.basename(image_dir)}.tiff"),
             instance_map,
             format="TIFF",
         )
@@ -63,7 +68,7 @@ def postprocess_inference(path):
         for instance_id, class_label in id_to_class.items():
             semantic_map[instance_map == instance_id] = class_label
         imageio.imwrite(
-            os.path.join(path, f"{os.path.basename(image_dir)}.tiff"),
+            os.path.join(sem_path, f"{os.path.basename(image_dir)}.tiff"),
             semantic_map,
             format="TIFF",
         )
@@ -72,7 +77,7 @@ def postprocess_inference(path):
 
 
 def run_inference(input_dir, output_dir):
-    for dataset in DATASETS:
+    for dataset in ['pannuke']:
         for model in CHECKPOINTS:
             output_path = os.path.join(output_dir, "inference", dataset, model)
             input_path = os.path.join(input_dir, dataset, "loaded_testset", "eval_split", "test_images", "*")
@@ -106,16 +111,6 @@ def run_inference(input_dir, output_dir):
 
 
 run_inference(
-    input_dir="/mnt/lustre-grete/usr/u12649/data/final_test",
+    input_dir="/mnt/lustre-grete/usr/u12649/data/semantic_data",
     output_dir="/mnt/lustre-grete/usr/u12649/models/hovernext_types",
 )
-# array_path = os.path.join(image_dir, "cls")
-        # os.makedirs(array_path, exist_ok=True)
-        # with zipfile.ZipFile(os.path.join(image_dir, f"{os.path.basename(image_dir)}_raw_512_cls.zip"), "r") as zip_file:
-        #     zip_file.extractall(array_path)
-        # raw_pred = zarr.open(os.path.join(image_dir, "cls"), mode="r")
-        # pred = np.squeeze(raw_pred)
-        # if pred.size == 0:
-        #     print(image_dir)
-        #     continue
-        # semantic_mask = np.argmax(pred, axis=0)

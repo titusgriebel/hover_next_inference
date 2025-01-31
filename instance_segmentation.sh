@@ -9,4 +9,4 @@
 
 source ~/.bashrc
 mamba activate hovernext
-python3 hovernext_inference.py
+python3 hovernext_inference.py -i /mnt/lustre-grete/usr/u12649/data/original_data -o /mnt/lustre-grete/usr/u12649/models/hovernext -d pannuke -c pannuke_convnextv2_tiny_3

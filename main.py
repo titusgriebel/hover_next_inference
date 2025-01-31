@@ -48,7 +48,7 @@ def get_input_type(params):
     params["ext"] = os.path.splitext(params["p"])[-1]
     if params["ext"] == ".npy":
         params["input_type"] = "npy"
-    elif params["ext"] in [".jpg", ".png", ".jpeg", ".bmp", ".tiff"]:
+    elif params["ext"] in [".jpg", ".png", ".jpeg", ".bmp", ".tiff", ".tif"]:
         params["input_type"] = "img"
     else:
         params["input_type"] = "wsi"
